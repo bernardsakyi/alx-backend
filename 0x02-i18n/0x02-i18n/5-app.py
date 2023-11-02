@@ -4,9 +4,6 @@ simple flask app
 """
 from flask import Flask, render_template, request, g
 from flask_babel import Babel
-from pytz import timezone, UnknownTimeZoneError
-from datetime import datetime
-
 
 users = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
@@ -34,13 +31,9 @@ babel = Babel(app)
 def index():
     """simple index page"""
     user = g.get("user")
-    tz = g.get("tz")
     if user:
-        return render_template(
-            "index.html",
-            username=user["name"],
-            current_time=datetime.now(tz=tz).ctime())
-    return render_template("index.html", username=None, current_time=tz)
+        return render_template("5-index.html", username=user["name"])
+    return render_template("5-index.html", username=None)
 
 
 def get_user():
@@ -64,49 +57,16 @@ def before_request():
     user = get_user()
     if user:
         g.user = user
-    tz = get_timezone()
-    if tz:
-        g.timezone = tz
 
 
 @babel.localeselector
 def get_locale():
     """select best lang"""
-    locale_param = request.args.get("locale")
-    locale_head = request.headers.get("locale")
-    locale_user = None
-    if g.get("user"):
-        locale_user = g.user.get("locale")
-    if locale_param and locale_param in app.config["LANGUAGES"]:
-        return locale_param
-    elif locale_user and locale_user in app.config["LANGUAGES"]:
-        return locale_user
-    elif locale_head and locale_head in app.config["LANGUAGES"]:
-        return locale_head
+    locale = request.args.get("locale")
+    if locale and locale in app.config["LANGUAGES"]:
+        return locale
     else:
         return request.accept_languages.best_match(app.config["LANGUAGES"])
-
-
-@babel.timezoneselector
-def get_timezone():
-    try:
-        locale_param = request.args.get("timezone")
-        timezone(locale_param)
-    except UnknownTimeZoneError:
-        locale_param = None
-
-    try:
-        locale_user = g.user.get("timezone")
-        timezone(locale_user)
-    except UnknownTimeZoneError:
-        locale_user = None
-
-    if locale_param:
-        return locale_param
-    elif locale_user:
-        return locale_user
-    else:
-        return app.config["BABEL_DEFAULT_TIMEZONE"]
 
 
 if __name__ == "__main__":
