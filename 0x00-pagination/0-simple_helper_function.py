@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-
-""" This is  a function named index_range that takes two
-    integer arguments page and page_size.
+"""
+Simple function to calculate start and end indexes
 """
 
 from typing import Tuple
 
 
-def index_range(page: int, page_size: int) -> Tuple[int, int]:
-    """ 
-        The function should return a tuple of size two containing
-        a start index and an end index corresponding to the range
-        of indexes to return in a list for those particular pagination
-        parameters.Page numbers are 1-indexed, i.e. the first page is
-        page 1.
+def index_range(page: int, page_size: int) -> Tuple:
     """
-
-    start = (page - 1) * page_size
-    end = start + page_size
-    return (start, end)
+    @page refers: the specific page required
+    @page_size: how much a specific page is
+    ex: for the following dataset [x for x in range(21)]
+        if a single page is 7 elements, the start and end indexes
+        of the first page would be 0, 7
+    """
+    return ((page_size * page) - page_size, (page_size * page))
